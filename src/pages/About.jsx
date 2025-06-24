@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';  
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const About = () => {
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-emerald-100 to-yellow-100 px-6 py-12 lg:px-24">
 
       {/* QUOTE SECTION */}
-      <div className="bg-gradient-to-br from-green-50 via-emerald-100 to-yellow-50 py-16 px-6 md:px-20 rounded-3xl shadow-xl mb-20">
+      <div  data-aos="fade-right"
+     data-aos-offset="300"
+     data-aos-easing="ease-in-sine" className="bg-gradient-to-br from-green-50 via-emerald-100 to-yellow-50 py-16 px-6 md:px-20 rounded-3xl shadow-xl mb-20">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-2xl md:text-3xl font-semibold italic text-gray-800 leading-relaxed tracking-wide">
             “<span className="text-emerald-800 font-bold">Food is a basic human right.</span> When we waste it, we waste the chance to feed someone’s hope.”

@@ -4,8 +4,13 @@ import donation1 from "../assets/donation1.png"
 import { BiSolidDonateHeart } from "react-icons/bi";
 import { FaUserTie } from "react-icons/fa";
 import { FaHandsHelping } from "react-icons/fa";
+import { useEffect } from 'react';  
+import AOS from 'aos';  //A-1(install aos)
 
-const Home = () => {
+const Home = () => {  //A-2
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
   return (
     <div >
       <div className=' bg-gradient-to-br from-white via-emerald-100 to-yellow-100 flex flex-col items-center lg:flex-row  lg:mt-[10px] pt-10 lg:gap-15 lg:pl-8 md:flex-col  md:mt-[2px]  md:py-10  md:gap-5   '>
@@ -13,7 +18,9 @@ const Home = () => {
       
       {/* Hero Section */}
       <section className="mt-10 mb-16">
-      <h1 className="text-3xl md:text-3xl lg:text-5xl text-gray-800 font-bold bg-clip-text drop-shadow-lg tracking-wide animate-fade-in">
+      <h1 data-aos="fade-right"
+     data-aos-offset="300"
+     data-aos-easing="ease-in-sine" className="text-3xl md:text-3xl lg:text-5xl text-gray-800 font-bold bg-clip-text drop-shadow-lg tracking-wide animate-fade-in">
     Welcome to <span className='font-extrabold text-blue-950 '>FoodBridge Mirpur</span>
   </h1>
         <p className="pt-4 text-lg md:text-xl text-gray-950 max-w-2xl mx-auto leading-relaxed tracking-wide">
@@ -61,9 +68,12 @@ const Home = () => {
 
     </div>
     {/* Image */}
-<div className='w-80 pt-8 h-auto lg:w-120 md:w-130 '>
+<div  data-aos="fade-right"
+     data-aos-offset="300"
+     data-aos-easing="ease-in-sine" className='w-80 pt-8 h-auto lg:w-120 md:w-130 '>
     <img className='rounded-3xl' src={donation1} alt="donation1" />
 </div>
+
 
     </div>
 
