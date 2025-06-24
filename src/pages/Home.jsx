@@ -8,12 +8,12 @@ import { FaHandsHelping } from "react-icons/fa";
 const Home = () => {
   return (
     <div >
-      <div className=' bg-gradient-to-br from-white via-emerald-100 to-yellow-100 flex flex-col items-center  lg:flex-row  lg:mt-[10px] pt-10 lg:gap-15 lg:pl-8 '>
+      <div className=' bg-gradient-to-br from-white via-emerald-100 to-yellow-100 flex flex-col items-center lg:flex-row  lg:mt-[10px] pt-10 lg:gap-15 lg:pl-8 md:flex-col  md:mt-[2px]  md:py-10  md:gap-5   '>
  <div className="flex flex-col items-center justify-center  text-center px-4">
       
       {/* Hero Section */}
       <section className="mt-10 mb-16">
-      <h1 className="text-3xl lg:text-5xl text-gray-800 font-bold bg-clip-text drop-shadow-lg tracking-wide animate-fade-in">
+      <h1 className="text-3xl md:text-3xl lg:text-5xl text-gray-800 font-bold bg-clip-text drop-shadow-lg tracking-wide animate-fade-in">
     Welcome to <span className='font-extrabold text-blue-950 '>FoodBridge Mirpur</span>
   </h1>
         <p className="pt-4 text-lg md:text-xl text-gray-950 max-w-2xl mx-auto leading-relaxed tracking-wide">
@@ -25,7 +25,7 @@ const Home = () => {
       </section>
 
       {/* Join Buttons */}
-   <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-5 px-4">
+   <section className="grid grid-cols-1  gap-6 mt-5 px-4">
   <Link
     to="/donor/signup"
     className="bg-orange-800 hover:bg-orange-900 text-white font-bold shadow-md rounded-xl px-6 py-5 text-xl  tracking-wide transition-all hover:scale-105 hover:shadow-xl text-center"
@@ -61,7 +61,7 @@ const Home = () => {
 
     </div>
     {/* Image */}
-<div className='w-80 pt-8 h-auto lg:w-120'>
+<div className='w-80 pt-8 h-auto lg:w-120 md:w-130 '>
     <img className='rounded-3xl' src={donation1} alt="donation1" />
 </div>
 

@@ -1,89 +1,53 @@
-import { NavLink } from "react-router-dom";
-
+import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 
 function Navbar1() {
-    function handleclick() {
+  const nav = useNavigate();
+
+  function handleClick() {
     nav("/");
-    setIsMenuOpen(false);
   }
+
   return (
-<>
- 
-      
-    <div className="container bg-white lg:h-[180px] h-[160px] lg:w-full  lg:flex lg:flex-row flex flex-col gap-7  px-6 sm:px-10 md:px-12 py-5 ">
+ <div className="w-full bg-gradient-to-r from-emerald-200 via-white to-yellow-100 shadow-md">
 
-       {/* Logo Icon */}
-        <div className="flex items-center gap-2 scale-150 origin-left">
-            <img 
-                      src={logo}
-                      alt="FoodBridge Logo"
-                      className="lg:w-20 w-15 ml-[65px] mt-3 h-auto transition-transform duration-500 hover:scale-105 cursor-pointer"
-                      onClick={handleclick}
-                    />
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 md:px-12 py-4 flex flex-col lg:flex-row items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center gap-2 cursor-pointer" onClick={handleClick}>
+          <img
+            src={logo}
+            alt="FoodBridge Logo"
+            className="w-20 lg:w-24 transition-transform duration-500 hover:scale-110"
+          />
         </div>
-        
-        {/* nav bar */}
-<div className="lg:ml-25 lg:mt-20 lg:text-[30px] text-1xl font-bold lg:font-bold">
-  <ul className="flex space-x-6 ">
-    <li>
-      <NavLink
-        to="/"
-        end
-     className={({ isActive }) =>
-          `relative text-gray-700 transition-colors duration-300  px-2 py-1
-           hover:text-blue-800 hover:font-extrabold
-           ${isActive ? "text-blue-700 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[3px] after:bg-yellow-600 after:rounded-full after:transition-all after:duration-300" : ""}`
-        }
-      >
-        Home
-      </NavLink>
-    </li>
-    <li>
-      <NavLink
-        to="/about"
-       className={({ isActive }) =>
-          `relative text-gray-700 transition-colors duration-300  px-2 py-1
-           hover:text-blue-800 hover:font-extrabold
-           ${isActive ? "text-blue-950 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[3px] after:bg-yellow-600 after:rounded-full after:transition-all after:duration-300" : ""}`
-        }
-      >
-        About
-      </NavLink>
-    </li>
-    <li>
-      <NavLink
-        to="/mission"
-        className={({ isActive }) =>
-          `relative text-gray-700 transition-colors duration-300  px-2 py-1
-          hover:text-blue-800 hover:font-extrabold
-           ${isActive ? "text-blue-950 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[3px] after:bg-yellow-600 after:rounded-full after:transition-all after:duration-300" : ""}`
-        }
-      >
-        Mission
-      </NavLink>
-    </li>
-    <li>
-      <NavLink
-        to="/contact"
-        className={({ isActive }) =>
-          `relative text-gray-700 transition-colors duration-300  px-2 py-1
-          hover:text-blue-800 hover:font-extrabold
-           ${isActive ? "text-blue-700 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[3px] after:bg-yellow-600 after:rounded-full after:transition-all after:duration-300" : ""}`
-        }
-      >
-        Contact
-      </NavLink>
-    </li>
-    
-  </ul>
-</div>
 
-
+        {/* Nav Links */}
+        <ul className="flex flex-wrap justify-center lg:justify-end gap-6 mt-4 lg:mt-0 text-lg lg:text-xl font-semibold">
+          {[
+            { path: "/", label: "Home" },
+            { path: "/about", label: "About" },
+            { path: "/mission", label: "Mission" },
+            { path: "/contact", label: "Contact" },
+          ].map(({ path, label }) => (
+            <li key={path}>
+              <NavLink
+                to={path}
+                end={path === "/"}
+                className={({ isActive }) =>
+                  `relative text-gray-700 transition duration-300 hover:text-blue-800 hover:font-bold ${
+                    isActive
+                      ? "text-blue-700 after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[3px] after:bg-yellow-500 after:rounded-full"
+                      : ""
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
       </div>
-    
-
-    </>
+    </div>
   );
 }
 
