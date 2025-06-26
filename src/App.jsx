@@ -1,25 +1,39 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Mission from "./pages/Mission";
 import Contact from "./pages/Contact";
-import Work from "./pages/How-it-works";
+import Login from "./pages/donor/DonorLogin";
+import Reclogin from "./pages/Recepient/RecipientLogin";
+import  Vollogin  from "./pages/volunteer/volunteer"
+function MainLayout() {   // this will always show navbar at top 
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
+}
 
 function App() {
   return (
-    <div className="w-full">
     <Router>
-      <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/mission" element={<Mission />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/how-it-works" element={<Work/>}></Route>
+        {/* Main layout wraps all pages that need Navbar */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/mission" element={<Mission />} />
+          <Route path="/contact" element={<Contact />} />
+        </Route>
+
+        {/* These pages won't show Navbar */}
+        <Route path="/donorlogin" element={<Login />} />
+        <Route path="/reclogin" element={<Reclogin />} />
+          <Route path="/vollogin" element={<Vollogin />} />
       </Routes>
     </Router>
-    </div>
   );
 }
 
