@@ -49,7 +49,7 @@ C:\xampp\htdocs\foodbridge-mirpur
 
 1. Open your browser and go to: [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
 2. Click on **"New"**, create a database (e.g., `foodbridge`)
-3. Import the `.sql` file (if provided) using the **Import** tab or manually create the DB
+3. Import the `.sql` file (if provided) using the **Import** tab or manually create the DB.
 
 ---
 
