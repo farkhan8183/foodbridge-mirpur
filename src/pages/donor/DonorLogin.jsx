@@ -1,33 +1,194 @@
-//note: trippl  ///comments shows logic of  clearin fileds  on  clickin sign  up
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [login, setLogin] = useState(false);
+  const [login, setLogin] = useState(true);
+  
+  // Signup states
   const [donorType, setDonorType] = useState('');
   const [name, setname] = useState('');
   const [email, setemail] = useState('');
-  const [phone, setPhone] = useState('');        /// Added phone state
-  const [address, setAddress] = useState('');    /// Added address state
-  const [regId, setRegId] = useState('');        /// Added org regId state
-  const [items, setItems] = useState('');        /// Added restaurant item state
-  const [password, setPassword] = useState('');  /// Added password state
-  const [confirmPassword, setConfirmPassword] = useState(''); /// Added confirm password state
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // Login states
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  
+  // Loading and error states
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [checkingSession, setCheckingSession] = useState(true);
 
-  function handlesignup() {
-    /// Reset all signup fields on Sign Up button click
-    setname('');
-    setemail('');
-    setPhone('');
-    setAddress('');
-    setDonorType('');
-    setRegId('');
-    setItems('');
-    setPassword('');
-    setConfirmPassword('');
+  // Check for existing session on component mount
+  useEffect(() => {
+    checkSession();
+  }, []);
+
+  // Function to check if user is already logged in
+  async function checkSession() {
+    try {
+      const response = await fetch("http://localhost/FSWD/foodbridge-Backend/checksession.php", {
+        method: "GET",
+        credentials: 'include', // Important: Include cookies/session
+        headers: { 
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.logged_in) {
+          // User is already logged in, redirect to panel
+          console.log('User already logged in:', result.user);
+          navigate('/donorpanel');
+          return;
+        }
+      }
+    } catch (error) {
+      console.log('Session check failed:', error);
+    } finally {
+      setCheckingSession(false);
+    }
   }
 
+  // FIXED: Login function with correct file name
+  async function handleLogin() {
+    if (!loginEmail || !loginPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // FIXED: Changed from donorlogin.php to login.php
+      const response = await fetch("http://localhost/FSWD/foodbridge-Backend/donorlogin.php", {
+        method: "POST",
+        credentials: 'include', // Important: Include cookies/session
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPassword
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('Login successful:', result.user);
+        alert('Login successful!');
+        // Navigate to donor panel page
+        navigate('/donorpanel');
+      } else {
+        setError(result.message);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Signup function (existing)
+  async function handlesignup() {
+    if (!name || !email || !phone || !address || !donorType || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      await submit();
+      // Clear form on successful signup
+      setname('');
+      setemail('');
+      setPhone('');
+      setAddress('');
+      setDonorType('');
+      setPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      console.error('Signup failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function submit() {
+    try {
+      const response = await fetch("http://localhost/FSWD/foodbridge-Backend/donorsignup.php", {
+        method: "POST",
+        credentials: 'include', // Include for consistency
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          address,
+          donorType,
+          password
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('Signup successful! Please login.');
+        setLogin(true); // Switch to login view
+      } else {
+        setError(result.message);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      setError('Network error. Please try again.');
+    }
+  }
+
+  // Clear error when switching between login/signup
+  const handleToggle = (isLoginMode) => {
+    setLogin(isLoginMode);
+    setError('');
+    // Clear login form when switching to signup
+    if (!isLoginMode) {
+      setLoginEmail('');
+      setLoginPassword('');
+    }
+  };
+
+  // Show loading while checking session
+  if (checkingSession) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-white to-pink-100">
+        <div className="text-lg font-semibold">Checking session...</div>
+      </div>
+    );
+  }
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-white to-pink-100 px-4">
       <div className="bg-white shadow-2xl rounded-2xl p-6 sm:p-8 w-full max-w-md border border-gray-200">
@@ -39,21 +200,28 @@ const Login = () => {
                 ? 'bg-blue-600 text-white shadow-md scale-105'
                 : 'bg-gray-100 text-blue-700'
             }`}
-            onClick={() => setLogin(true)}
+            onClick={() => handleToggle(true)}
           >
             Login
           </button>
           <button
-            className={`w-1/2 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200  cursor-pointer ${
+            className={`w-1/2 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 cursor-pointer ${
               !login
                 ? 'bg-blue-600 text-white shadow-md scale-105'
                 : 'bg-gray-100 text-blue-700'
             }`}
-            onClick={() => setLogin(false)}
+            onClick={() => handleToggle(false)}
           >
             Signup
           </button>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Login */}
         {login ? (
@@ -66,11 +234,17 @@ const Login = () => {
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-400"
                 type="email"
                 placeholder="Email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                required
               />
               <input
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-400"
                 type="password"
                 placeholder="Password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                required
               />
             </div>
 
@@ -79,16 +253,21 @@ const Login = () => {
             </div>
 
             <button
-              onClick={() => navigate('/')}
-              className="mt-5 w-full bg-blue-700 hover:bg-blue-900 text-white py-2 rounded-lg font-semibold shadow-md cursor-pointer"
+              onClick={handleLogin}
+              disabled={isLoading}
+              className={`mt-5 w-full py-2 rounded-lg font-semibold shadow-md cursor-pointer text-white ${
+                isLoading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-blue-700 hover:bg-blue-900'
+              }`}
             >
-              Login
+              {isLoading ? 'Logging in...' : 'Login'}
             </button>
 
             <div className="mt-4 text-sm text-center">
               Not a member?{' '}
               <span
-                onClick={() => setLogin(false)}
+                onClick={() => handleToggle(false)}
                 className="text-blue-700 font-medium hover:underline cursor-pointer"
               >
                 Sign up Now
@@ -102,31 +281,43 @@ const Login = () => {
             <p className="text-center text-sm text-gray-500 mb-4">Sign up to donate and support 💚</p>
 
             <div className="flex flex-col gap-4">
-              <input value={name} onChange={(e) => setname(e.target.value)} /// name
+              <input 
+                value={name} 
+                onChange={(e) => setname(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
                 type="text"
                 placeholder="Your / Organization Name"
+                required
               />
-              <input value={email} onChange={(e) => setemail(e.target.value)} /// email
+              <input 
+                value={email} 
+                onChange={(e) => setemail(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
                 type="email"
                 placeholder="Email"
+                required
               />
-              <input value={phone} onChange={(e) => setPhone(e.target.value)} /// phone
+              <input 
+                value={phone} 
+                onChange={(e) => setPhone(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
                 type="tel"
                 placeholder="Phone Number"
+                required
               />
-              <textarea value={address} onChange={(e) => setAddress(e.target.value)} /// address
+              <textarea 
+                value={address} 
+                onChange={(e) => setAddress(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
                 placeholder="Address"
+                required
               ></textarea>
 
-              {/* Donor Type Dropdown */}
               <select
                 value={donorType}
-                onChange={(e) => setDonorType(e.target.value)} /// donorType
+                onChange={(e) => setDonorType(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
+                required
               >
                 <option value="">Select Donor Type</option>
                 <option value="person">Individual</option>
@@ -134,45 +325,40 @@ const Login = () => {
                 <option value="organization">Organization</option>
               </select>
 
-              {/* Conditional Fields */}
-              {donorType === 'restaurant' && (
-                <input value={items} onChange={(e) => setItems(e.target.value)} /// restaurant
-                  className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                  type="text"
-                  placeholder="Usual Donation Items (e.g., Food, Water)"
-                />
-              )}
-              {donorType === 'organization' && (
-                <input value={regId} onChange={(e) => setRegId(e.target.value)} /// org regId
-                  className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                  type="text"
-                  placeholder="Registration No / ID"
-                />
-              )}
-
-              <input value={password} onChange={(e) => setPassword(e.target.value)} /// password
+              <input 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
                 type="password"
                 placeholder="Password"
+                required
               />
-              <input value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} /// confirm password
+              <input 
+                value={confirmPassword} 
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
                 type="password"
                 placeholder="Confirm Password"
+                required
               />
             </div>
 
             <button
-              className="mt-5 w-full bg-pink-600 hover:bg-pink-800 text-white py-2 rounded-lg font-semibold shadow-md cursor-pointer"
-              onClick={handlesignup} /// Clear fields here
+              className={`mt-5 w-full py-2 rounded-lg font-semibold shadow-md cursor-pointer text-white ${
+                isLoading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-pink-600 hover:bg-pink-800'
+              }`}
+              onClick={handlesignup}
+              disabled={isLoading}
             >
-              Sign Up
+              {isLoading ? 'Signing Up...' : 'Sign Up'}
             </button>
 
             <div className="mt-4 text-sm text-center">
               Already a member?{' '}
               <span
-                onClick={() => setLogin(true)}
+                onClick={() => handleToggle(true)}
                 className="text-pink-700 font-medium hover:underline cursor-pointer"
               >
                 Login
