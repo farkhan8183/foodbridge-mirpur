@@ -28,10 +28,10 @@ After cloning, move the project folder to your XAMPP `htdocs` directory:
 
 ```bash
 # For Windows
-C:\xampp\htdocs\foodbridge
+C:\xampp\htdocs\foodbridge-mirpur
 
 # For macOS/Linux
-/Applications/XAMPP/htdocs/foodbridge
+/Applications/XAMPP/htdocs/foodbridge-mirpur
 ```
 
 ---
