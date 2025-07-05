@@ -5,7 +5,8 @@ import About from "./pages/About";
 import Mission from "./pages/Mission";
 import Contact from "./pages/Contact";
 import Login from "./pages/donor/DonorLogin";
-import DonorPanel from "./pages/donor/DonorPanel"; // Add this import
+import DonorPanel from "./pages/donor/donorpanel"; // Add this import
+import Createdonation from "./pages/donor/Createdonation"; // Add this import
 import Reclogin from "./pages/Recepient/RecipientLogin";
 import Vollogin from "./pages/volunteer/volunteer";
 
@@ -33,6 +34,7 @@ function App() {
         {/* These pages won't show Navbar (login pages and dashboards) */}
         <Route path="/donorlogin" element={<Login />} />
         <Route path="/donorpanel" element={<DonorPanel />} />
+        <Route path="/Createdonation" element={<Createdonation />} />
         <Route path="/reclogin" element={<Reclogin />} />
         <Route path="/vollogin" element={<Vollogin />} />
       </Routes>

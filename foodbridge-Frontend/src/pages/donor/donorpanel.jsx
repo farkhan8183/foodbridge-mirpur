@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 
 const DonorPanel = () => {
   const [user, setUser] = useState(null);
@@ -110,7 +111,7 @@ const DonorPanel = () => {
               <div className="text-sm">
                 <span className="text-gray-600">Welcome, </span>
                 <span className="font-semibold text-gray-900">{user.name}</span>
-                <span className="text-gray-500 ml-2">({user.donor_type})</span>
+                {/* <span className="text-gray-500 ml-2">({user.donor_type})</span> */}
               </div>
               <button
                 onClick={handleLogout}
@@ -188,9 +189,14 @@ const DonorPanel = () => {
                   </div>
                 </div>
                 <div className="mt-4">
+            
+
+                <Link to="/createdonation">
                   <button className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
                     Create Donation
                   </button>
+                </Link>
+
                 </div>
               </div>
             </div>
