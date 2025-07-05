@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import  Footer  from  "./components/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Mission from "./pages/Mission";
@@ -13,8 +14,9 @@ import Vollogin from "./pages/volunteer/volunteer";
 function MainLayout() {   // this will always show navbar at top 
   return (
     <>
-      <Navbar />
+      <Navbar />    
       <Outlet />
+       <Footer/>
     </>
   );
 }
@@ -30,6 +32,7 @@ function App() {
           <Route path="/mission" element={<Mission />} />
           <Route path="/contact" element={<Contact />} />
         </Route>
+
 
         {/* These pages won't show Navbar (login pages and dashboards) */}
         <Route path="/donorlogin" element={<Login />} />
