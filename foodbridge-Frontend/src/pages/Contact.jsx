@@ -9,7 +9,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen px-6 py-16 bg-gradient-to-br from-white via-emerald-50 to-yellow-50  ">
-      <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-3xl p-8 md:p-12" data-aos="fade-up">
+      <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-3xl p-5 md:p-12" data-aos="fade-up">
         <h2 className="text-4xl font-extrabold text-center text-emerald-800 mb-10 tracking-tight drop-shadow-md">
           📬 Contact Us
         </h2>
