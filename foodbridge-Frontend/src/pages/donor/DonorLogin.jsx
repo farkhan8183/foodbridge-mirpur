@@ -67,17 +67,19 @@ const Login = () => {
 
     try {
       // FIXED: Changed from donorlogin.php to login.php
-      const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/donorlogin.php", {
+      const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/login.php", {
         method: "POST",
-        credentials: 'include', // Important: Include cookies/session
+        credentials: 'include',
         headers: { 
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           email: loginEmail,
-          password: loginPassword
+          password: loginPassword,
+          role: "donor"  // 🔥 fixed role
         }),
       });
+      
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -137,29 +139,30 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/donorsignup.php", {
         method: "POST",
-        credentials: 'include', // Include for consistency
+        credentials: 'include',
         headers: { 
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           name,
           email,
+          password,
           phone,
           address,
           donorType,
-          password
+          role: "donor"  // 🔥 This is fixed and hidden from UI
         }),
       });
   
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const result = await response.json();
-      
+  
       if (result.success) {
         alert('Signup successful! Please login.');
-        setLogin(true); // Switch to login view
+        setLogin(true);
       } else {
         setError(result.message);
       }
@@ -168,7 +171,7 @@ const Login = () => {
       setError('Network error. Please try again.');
     }
   }
-
+  
   // Clear error when switching between login/signup
   const handleToggle = (isLoginMode) => {
     setLogin(isLoginMode);

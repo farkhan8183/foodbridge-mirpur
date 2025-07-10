@@ -25,6 +25,7 @@ const DonorPanel = () => {
         const result = await response.json();
         if (result.success && result.logged_in) {
           setUser(result.user);
+          console.log("Set user:", result.user);
           setIsLoggedIn(true);
         } else {
           setIsLoggedIn(false);
@@ -147,8 +148,8 @@ const DonorPanel = () => {
               </h3>
               <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">User ID</dt>
-                  <dd className="mt-1 text-sm text-gray-900">#{user.id}</dd>
+                  <dt className="text-sm font-medium text-gray-500">Donor ID</dt>
+                  <dd className="mt-1 text-sm text-gray-900">#{user.data?.id}</dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Name</dt>
@@ -160,7 +161,7 @@ const DonorPanel = () => {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Donor Type</dt>
-                  <dd className="mt-1 text-sm text-gray-900 capitalize">{user.donor_type}</dd>
+                  <dd className="mt-1 text-sm text-gray-900 capitalize">{user.data?.donor_type}</dd>
                 </div>
               </dl>
             </div>
