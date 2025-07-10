@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 01, 2025 at 06:26 AM
+-- Generation Time: Jul 10, 2025 at 09:43 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -63,12 +63,10 @@ CREATE TABLE `DONATIONS` (
 
 CREATE TABLE `DONOR` (
   `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address` text DEFAULT NULL,
   `donor_type` enum('person','restaurant','organization') DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -76,25 +74,9 @@ CREATE TABLE `DONOR` (
 -- Dumping data for table `DONOR`
 --
 
-INSERT INTO `DONOR` (`id`, `name`, `email`, `phone`, `address`, `donor_type`, `password`, `created_at`) VALUES
-(3, 'A', 'haadi1495@gmail.com', '03135536110', 'House no 388 ,Street no 23,Sector C/4', 'person', '1234', '2025-06-29 03:34:42'),
-(4, 'Abdul Haadi', 'haadi@gmail.com', '03135536110', 'House no 388 ,Street no 23,Sector C/4', 'person', '123', '2025-06-29 03:37:17'),
-(5, 'Another User', 'john@example.com', '9876543210', '456 Oak Ave', 'restaurant', 'password123', '2025-06-29 04:16:12'),
-(8, 'A', 'haadi195@gmail.com', '03135536110', 'House no 388 ,Street no 23,Sector C/4', 'person', '111', '2025-06-29 04:53:04');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `EMPLOYEES`
---
-
-CREATE TABLE `EMPLOYEES` (
-  `ID` int(11) NOT NULL,
-  `Name` varchar(100) DEFAULT NULL,
-  `CNIC` varchar(20) DEFAULT NULL,
-  `Email` varchar(100) DEFAULT NULL,
-  `Contact` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `DONOR` (`id`, `user_id`, `phone`, `address`, `donor_type`, `created_at`) VALUES
+(9, 4, '03135536110', 'House no 388, Street no 23, Sector C/4', 'person', '2025-07-09 07:02:16'),
+(10, 5, '03135536110', 'C4', 'person', '2025-07-09 07:15:43');
 
 -- --------------------------------------------------------
 
@@ -119,10 +101,9 @@ CREATE TABLE `PICKUPS` (
 
 CREATE TABLE `RECIPIENT` (
   `ID` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `Daily_Need` int(11) DEFAULT NULL,
-  `Name` varchar(100) DEFAULT NULL,
   `Address` varchar(255) DEFAULT NULL,
-  `Email` varchar(100) DEFAULT NULL,
   `Type` varchar(50) DEFAULT NULL,
   `Contact` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -139,6 +120,56 @@ CREATE TABLE `REQUEST` (
   `Status` varchar(50) DEFAULT NULL,
   `Deliveries_ID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `USERS`
+--
+
+CREATE TABLE `USERS` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('donor','recipient','volunteer') NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `USERS`
+--
+
+INSERT INTO `USERS` (`id`, `name`, `email`, `password`, `role`, `created_at`) VALUES
+(4, 'Abdul Haadi', 'haadi1495@gmail.com', '1234', 'donor', '2025-07-09 07:02:16'),
+(5, 'Haadi', 'haadi@gmail.com', '12345', 'donor', '2025-07-09 07:15:43'),
+(17, 'Farhan', 'farhan3@gmail.com', '123456', 'volunteer', '2025-07-10 05:19:59'),
+(21, 'Abdul Haadi', 'abdul@gmail.com', '123456', 'volunteer', '2025-07-10 05:45:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `VOLUNTEER`
+--
+
+CREATE TABLE `VOLUNTEER` (
+  `ID` int(255) NOT NULL,
+  `user_id` int(255) NOT NULL,
+  `Contact` varchar(15) DEFAULT NULL,
+  `Relevant_Skill` varchar(255) DEFAULT NULL,
+  `Availability` enum('Weekdays','Weekends','Anytime') DEFAULT NULL,
+  `City` varchar(100) DEFAULT NULL,
+  `CNIC` varchar(20) DEFAULT NULL,
+  `Department` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `VOLUNTEER`
+--
+
+INSERT INTO `VOLUNTEER` (`ID`, `user_id`, `Contact`, `Relevant_Skill`, `Availability`, `City`, `CNIC`, `Department`) VALUES
+(5, 17, '03001234567', 'Driving', 'Weekends', 'Lahore', '35202125678', 'Logisti'),
+(7, 21, '03135536110', ' ', 'Anytime', 'Mirpur AJK', '09809425', ' ');
 
 --
 -- Indexes for dumped tables
@@ -165,15 +196,7 @@ ALTER TABLE `DONATIONS`
 --
 ALTER TABLE `DONOR`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- Indexes for table `EMPLOYEES`
---
-ALTER TABLE `EMPLOYEES`
-  ADD PRIMARY KEY (`ID`),
-  ADD UNIQUE KEY `CNIC` (`CNIC`),
-  ADD UNIQUE KEY `Email` (`Email`);
+  ADD KEY `fk_donor_user` (`user_id`);
 
 --
 -- Indexes for table `PICKUPS`
@@ -187,7 +210,8 @@ ALTER TABLE `PICKUPS`
 -- Indexes for table `RECIPIENT`
 --
 ALTER TABLE `RECIPIENT`
-  ADD PRIMARY KEY (`ID`);
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `fk_recipient_user` (`user_id`);
 
 --
 -- Indexes for table `REQUEST`
@@ -198,6 +222,20 @@ ALTER TABLE `REQUEST`
   ADD KEY `Deliveries_ID` (`Deliveries_ID`);
 
 --
+-- Indexes for table `USERS`
+--
+ALTER TABLE `USERS`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `VOLUNTEER`
+--
+ALTER TABLE `VOLUNTEER`
+  ADD PRIMARY KEY (`ID`),
+  ADD KEY `fk_volunteer_user` (`user_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -205,7 +243,19 @@ ALTER TABLE `REQUEST`
 -- AUTO_INCREMENT for table `DONOR`
 --
 ALTER TABLE `DONOR`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `USERS`
+--
+ALTER TABLE `USERS`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT for table `VOLUNTEER`
+--
+ALTER TABLE `VOLUNTEER`
+  MODIFY `ID` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -226,6 +276,12 @@ ALTER TABLE `DONATIONS`
   ADD CONSTRAINT `donations_ibfk_1` FOREIGN KEY (`Donor_ID`) REFERENCES `DONOR` (`ID`);
 
 --
+-- Constraints for table `DONOR`
+--
+ALTER TABLE `DONOR`
+  ADD CONSTRAINT `fk_donor_user` FOREIGN KEY (`user_id`) REFERENCES `USERS` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `PICKUPS`
 --
 ALTER TABLE `PICKUPS`
@@ -233,11 +289,23 @@ ALTER TABLE `PICKUPS`
   ADD CONSTRAINT `pickups_ibfk_2` FOREIGN KEY (`Donation_ID`) REFERENCES `DONATIONS` (`ID`);
 
 --
+-- Constraints for table `RECIPIENT`
+--
+ALTER TABLE `RECIPIENT`
+  ADD CONSTRAINT `fk_recipient_user` FOREIGN KEY (`user_id`) REFERENCES `USERS` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `REQUEST`
 --
 ALTER TABLE `REQUEST`
   ADD CONSTRAINT `request_ibfk_1` FOREIGN KEY (`Recipient_ID`) REFERENCES `RECIPIENT` (`ID`),
   ADD CONSTRAINT `request_ibfk_2` FOREIGN KEY (`Deliveries_ID`) REFERENCES `DELIVERIES` (`ID`);
+
+--
+-- Constraints for table `VOLUNTEER`
+--
+ALTER TABLE `VOLUNTEER`
+  ADD CONSTRAINT `fk_volunteer_user` FOREIGN KEY (`user_id`) REFERENCES `USERS` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
