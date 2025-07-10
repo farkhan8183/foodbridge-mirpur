@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
-const DonorPanel = () => {
+const VolunteerPanel = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isDonor, setIsDonor] = useState(false);
+  const [isVolunteer, setIsVolunteer] = useState(false);
   
-  // Move useNavigate hook inside the component
+  // Add useNavigate hook inside the component
   const nav = useNavigate();
 
-  // Fix the function declaration
+  // Add function to navigate to home
   const backtohome = () => {
     nav("/");
   }
@@ -20,12 +20,12 @@ const DonorPanel = () => {
     checkSession();
   }, []);
 
-  // Check if user session exists and is a donor
+  // Check if user session exists and is a volunteer
   async function checkSession() {
     try {
       const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/checksession.php", {
         method: "GET",
-        credentials: 'include',
+        credentials: 'include', // Important: Include cookies/session
         headers: { 
           "Content-Type": "application/json"
         }
@@ -34,29 +34,29 @@ const DonorPanel = () => {
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.logged_in) {
-          // Check if user is a donor
-          if (result.user.role === 'donor' || result.user.data?.role === 'donor') {
+          // Check if user is a volunteer
+          if (result.user.role === 'volunteer' || result.user.data?.role === 'volunteer') {
             setUser(result.user);
-            console.log("Set donor user:", result.user);
+            console.log("Set volunteer user:", result.user);
             setIsLoggedIn(true);
-            setIsDonor(true);
+            setIsVolunteer(true);
           } else {
-            // User is logged in but not a donor
+            // User is logged in but not a volunteer
             setIsLoggedIn(true);
-            setIsDonor(false);
+            setIsVolunteer(false);
           }
         } else {
           setIsLoggedIn(false);
-          setIsDonor(false);
+          setIsVolunteer(false);
         }
       } else {
         setIsLoggedIn(false);
-        setIsDonor(false);
+        setIsVolunteer(false);
       }
     } catch (error) {
       console.error('Session check failed:', error);
       setIsLoggedIn(false);
-      setIsDonor(false);
+      setIsVolunteer(false);
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,8 @@ const DonorPanel = () => {
           alert('Logged out successfully!');
           setUser(null);
           setIsLoggedIn(false);
-          setIsDonor(false);
+          setIsVolunteer(false);
+          // In a real app, this would redirect to login page
           window.location.href = '/';
         }
       }
@@ -92,7 +93,7 @@ const DonorPanel = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
         <div className="text-lg font-semibold">Loading...</div>
       </div>
     );
@@ -106,11 +107,11 @@ const DonorPanel = () => {
           <div className="text-6xl mb-4">🔒</div>
           <h2 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h2>
           <p className="text-gray-600 mb-6">
-            You need to be logged in to access the donor panel.
+            You need to be logged in to access the volunteer panel.
           </p>
           <button 
-            onClick={() => window.location.href = '/donorlogin'}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
+            onClick={() => window.location.href = '/volunteerlogin'}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
           >
             Go to Login
           </button>
@@ -119,22 +120,22 @@ const DonorPanel = () => {
     );
   }
 
-  // Logged in but not a donor - show unauthorized access
-  if (isLoggedIn && !isDonor) {
+  // Logged in but not a volunteer - show unauthorized access
+  if (isLoggedIn && !isVolunteer) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
         <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md">
           <div className="text-6xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-orange-600 mb-4">Unauthorized Access</h2>
           <p className="text-gray-600 mb-6">
-            You are logged in but don't have donor privileges to access this panel.
+            You are logged in but don't have volunteer privileges to access this panel.
           </p>
           <div className="space-y-3">
             <button 
-              onClick={() => window.location.href = '/volunteerpanel'}
-              className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
+              onClick={() => window.location.href = '/donorpanel'}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
             >
-              Go to Volunteer Panel
+              Go to Donor Panel
             </button>
             <button 
               onClick={handleLogout}
@@ -148,27 +149,27 @@ const DonorPanel = () => {
     );
   }
 
-  // User is logged in and is a donor - show dashboard
+  // User is logged in and is a volunteer - show dashboard
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              {/* Fixed: Add cursor pointer style and correct onClick */}
+              {/* Added clickable home navigation */}
               <h1 
-                className="text-2xl font-bold text-gray-900 cursor-pointer hover:text-blue-600 transition-colors"
+                className="text-2xl font-bold text-gray-900 cursor-pointer hover:text-green-600 transition-colors"
                 onClick={backtohome}
-              > 
-                🍽️ FoodBridge Donor Panel
+              >
+                🤝 FoodBridge Volunteer Panel
               </h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-sm">
                 <span className="text-gray-600">Welcome, </span>
                 <span className="font-semibold text-gray-900">{user.name}</span>
-                <span className="text-blue-600 ml-2 px-2 py-1 bg-blue-100 rounded-full text-xs">DONOR</span>
+                <span className="text-green-600 ml-2 px-2 py-1 bg-green-100 rounded-full text-xs">VOLUNTEER</span>
               </div>
               <button
                 onClick={handleLogout}
@@ -188,10 +189,10 @@ const DonorPanel = () => {
           <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
             <div className="px-4 py-5 sm:p-6">
               <h2 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                🎉 Welcome to your FoodBridge Dashboard!
+                🌟 Welcome to your Volunteer Dashboard!
               </h2>
               <p className="text-gray-600">
-                Thank you for being a FoodBridge donor! From here you can manage your donations, view your impact, and connect with recipients.
+                Thank you for volunteering with FoodBridge! From here you can manage pickup assignments, coordinate deliveries, and track your volunteer impact.
               </p>
             </div>
           </div>
@@ -200,12 +201,12 @@ const DonorPanel = () => {
           <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
             <div className="px-4 py-5 sm:p-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                👤 Donor Profile
+                👤 Volunteer Profile
               </h3>
               <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Donor ID</dt>
-                  <dd className="mt-1 text-sm text-gray-900">#{user.data?.id}</dd>
+                  <dt className="text-sm font-medium text-gray-500">Volunteer ID</dt>
+                  <dd className="mt-1 text-sm text-gray-900">#{user.data?.ID}</dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Name</dt>
@@ -216,10 +217,10 @@ const DonorPanel = () => {
                   <dd className="mt-1 text-sm text-gray-900">{user.email}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Donor Type</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs capitalize">
-                      {user.data?.donor_type || 'Food Donor'}
+                  <dt className="text-sm font-medium text-gray-500">Role</dt>
+                  <dd className="mt-1 text-sm text-gray-900 capitalize">
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                      {user.data?.role || 'Food Volunteer'}
                     </span>
                   </dd>
                 </div>
@@ -229,90 +230,90 @@ const DonorPanel = () => {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Donate Food Card */}
+            {/* Available Pickups Card */}
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-                      <span className="text-white font-bold">🍽️</span>
+                    <div className="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
+                      <span className="text-white font-bold">📦</span>
                     </div>
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">
-                        Donate Food
+                        Available Pickups
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        Share surplus food
+                        Food ready for pickup
                       </dd>
                     </dl>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <Link to="/createdonation">
-                    <button className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                      Create Donation
+                  <Link to="/available-pickups">
+                    <button className="w-full bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                      View Pickups
                     </button>
                   </Link>
                 </div>
               </div>
             </div>
 
-            {/* View Donations Card */}
+            {/* My Assignments Card */}
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-                      <span className="text-white font-bold">📋</span>
+                      <span className="text-white font-bold">🚚</span>
                     </div>
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">
-                        My Donations
+                        My Assignments
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        View history
+                        Active deliveries
                       </dd>
                     </dl>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <Link to="/my-donations">
+                  <Link to="/my-assignments">
                     <button className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                      View Donations
+                      View Assignments
                     </button>
                   </Link>
                 </div>
               </div>
             </div>
 
-            {/* Impact Stats Card */}
+            {/* Volunteer Stats Card */}
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                      <span className="text-white font-bold">📊</span>
+                    <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                      <span className="text-white font-bold">🏆</span>
                     </div>
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">
-                        Impact Stats
+                        My Impact
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        See your impact
+                        Volunteer stats
                       </dd>
                     </dl>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <Link to="/donor-impact">
-                    <button className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                      View Impact
+                  <Link to="/volunteer-stats">
+                    <button className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                      View Stats
                     </button>
                   </Link>
                 </div>
@@ -321,56 +322,56 @@ const DonorPanel = () => {
           </div>
 
           {/* Session Info */}
-          <div className="bg-blue-50 overflow-hidden shadow rounded-lg mt-6">
+          <div className="bg-green-50 overflow-hidden shadow rounded-lg mt-6">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-blue-800 mb-4">
-                ✅ Donor Session Status
+              <h3 className="text-lg leading-6 font-medium text-green-800 mb-4">
+                ✅ Volunteer Session Status
               </h3>
-              <div className="text-sm text-blue-700">
-                <p>🔐 You are securely logged in as a donor</p>
-                <p>🍽️ Your donor session is active and protected</p>
+              <div className="text-sm text-green-700">
+                <p>🔐 You are securely logged in as a volunteer</p>
+                <p>🤝 Your volunteer session is active and protected</p>
                 <p>🔄 Session validation ensures proper access control</p>
               </div>
             </div>
           </div>
 
-          {/* Recent Activity */}
+          {/* Recent Volunteer Activity */}
           <div className="bg-white overflow-hidden shadow rounded-lg mt-6">
             <div className="px-4 py-5 sm:p-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                📈 Recent Donor Activity
+                📋 Recent Volunteer Activity
               </h3>
               <div className="text-center py-8">
-                <div className="text-4xl mb-4">🍽️</div>
-                <p className="text-gray-500">No recent donation activity to display.</p>
+                <div className="text-4xl mb-4">🤝</div>
+                <p className="text-gray-500">No recent volunteer activity to display.</p>
                 <p className="text-sm text-gray-400 mt-2">
-                  Start by creating your first donation!
+                  Start by checking available pickups or assignments!
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Donor Quick Stats */}
+          {/* Volunteer Quick Stats */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 mt-6">
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-6 text-center">
-                <div className="text-3xl mb-2">🍽️</div>
+                <div className="text-3xl mb-2">📦</div>
                 <div className="text-2xl font-bold text-gray-900">0</div>
-                <div className="text-sm text-gray-500">Total Donations</div>
+                <div className="text-sm text-gray-500">Total Pickups</div>
               </div>
             </div>
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-6 text-center">
-                <div className="text-3xl mb-2">👥</div>
+                <div className="text-3xl mb-2">🚚</div>
                 <div className="text-2xl font-bold text-gray-900">0</div>
-                <div className="text-sm text-gray-500">People Fed</div>
+                <div className="text-sm text-gray-500">Completed Deliveries</div>
               </div>
             </div>
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="p-6 text-center">
-                <div className="text-3xl mb-2">🏆</div>
+                <div className="text-3xl mb-2">⭐</div>
                 <div className="text-2xl font-bold text-gray-900">0</div>
-                <div className="text-sm text-gray-500">Impact Score</div>
+                <div className="text-sm text-gray-500">Volunteer Hours</div>
               </div>
             </div>
           </div>
@@ -380,4 +381,4 @@ const DonorPanel = () => {
   );
 };
 
-export default DonorPanel;
+export default VolunteerPanel;

@@ -17,28 +17,35 @@ try {
 
     $input = file_get_contents("php://input");
     $data = json_decode($input, true);
-    error_log("Signup data: " . print_r($data, true));
+    error_log("Volunteer Signup data: " . print_r($data, true));
 
     // Validate input
     if (
-        !isset($data['name'], $data['email'], $data['password'], $data['phone'], $data['address'], $data['donorType'], $data['role'])
+        !isset($data['name'], $data['email'], $data['password'], $data['role'],
+                 $data['department'], $data['contact'], $data['relevantSkill'],
+                 $data['availability'], $data['city'], $data['cnic'])
     ) {
         echo json_encode(["success" => false, "message" => "Missing required fields"]);
         exit();
     }
 
+    // Extract values
     $name = $data['name'];
     $email = $data['email'];
     $password = $data['password'];
-    $role = $data['role']; // This should be "donor"
-    $phone = $data['phone'];
-    $address = $data['address'];
-    $donor_type = $data['donorType'];
+    $role = $data['role']; // Should be "volunteer"
+    
+    $department = $data['department'];
+    $contact = $data['contact'];
+    $relevantSkill = $data['relevantSkill'];
+    $availability = $data['availability'];
+    $city = $data['city'];
+    $cnic = $data['cnic'];
 
     // Begin transaction
     $conn->begin_transaction();
 
-    // 1. Insert into USERS table
+    // Insert into USERS
     $userStmt = $conn->prepare("INSERT INTO USERS (name, email, password, role) VALUES (?, ?, ?, ?)");
     if (!$userStmt) throw new Exception("User insert prepare failed: " . $conn->error);
     $userStmt->bind_param("ssss", $name, $email, $password, $role);
@@ -53,29 +60,30 @@ try {
         exit();
     }
 
-    $user_id = $conn->insert_id; // Get inserted user ID
+    $user_id = $conn->insert_id;
 
-    // 2. Insert into DONOR table
-    $donorStmt = $conn->prepare("INSERT INTO DONOR (user_id, phone, address, donor_type) VALUES (?, ?, ?, ?)");
-    if (!$donorStmt) throw new Exception("Donor insert prepare failed: " . $conn->error);
-    $donorStmt->bind_param("isss", $user_id, $phone, $address, $donor_type);
+    // Insert into VOLUNTEER
+    $volStmt = $conn->prepare("INSERT INTO VOLUNTEER (user_id, Department, Contact, Relevant_Skill, Availability, City, CNIC)
+                               VALUES (?, ?, ?, ?, ?, ?, ?)");
+    if (!$volStmt) throw new Exception("Volunteer insert prepare failed: " . $conn->error);
+    $volStmt->bind_param("issssss", $user_id, $department, $contact, $relevantSkill, $availability, $city, $cnic);
 
-    if (!$donorStmt->execute()) {
-        throw new Exception("Failed to insert into DONOR: " . $conn->error);
+    if (!$volStmt->execute()) {
+        throw new Exception("Failed to insert into VOLUNTEER: " . $conn->error);
     }
 
-    // Commit transaction
+    // Commit
     $conn->commit();
 
-    echo json_encode(["success" => true, "message" => "Signup successful"]);
+    echo json_encode(["success" => true, "message" => "Volunteer signup successful"]);
 
     // Cleanup
     $userStmt->close();
-    $donorStmt->close();
+    $volStmt->close();
     $conn->close();
 
 } catch (Exception $e) {
     $conn->rollback(); // Rollback on error
-    error_log("Signup error: " . $e->getMessage());
+    error_log("Volunteer Signup error: " . $e->getMessage());
     echo json_encode(["success" => false, "message" => "Server error: " . $e->getMessage()]);
 }

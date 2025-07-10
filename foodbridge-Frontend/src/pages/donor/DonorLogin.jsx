@@ -33,7 +33,7 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/checksession.php", {
         method: "GET",
-        credentials: 'include', // Important: Include cookies/session
+        credentials: 'include',
         headers: { 
           "Content-Type": "application/json"
         }
@@ -41,9 +41,8 @@ const Login = () => {
 
       if (response.ok) {
         const result = await response.json();
-        if (result.success && result.logged_in) {
-          // User is already logged in, redirect to panel
-          console.log('User already logged in:', result.user);
+        if (result.success && result.logged_in && result.user.role === 'donor') {
+          console.log('Donor already logged in:', result.user);
           navigate('/donorpanel');
           return;
         }
@@ -55,7 +54,7 @@ const Login = () => {
     }
   }
 
-  // FIXED: Login function with correct file name
+  // Login function
   async function handleLogin() {
     if (!loginEmail || !loginPassword) {
       setError('Please fill in all fields');
@@ -66,19 +65,19 @@ const Login = () => {
     setError('');
 
     try {
-      // FIXED: Changed from donorlogin.php to login.php
-      const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/donorlogin.php", {
+      const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/login.php", {
         method: "POST",
-        credentials: 'include', // Important: Include cookies/session
+        credentials: 'include',
         headers: { 
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           email: loginEmail,
-          password: loginPassword
+          password: loginPassword,
+          role: "donor"
         }),
       });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -88,7 +87,6 @@ const Login = () => {
       if (result.success) {
         console.log('Login successful:', result.user);
         alert('Login successful!');
-        // Navigate to donor panel page
         navigate('/donorpanel');
       } else {
         setError(result.message);
@@ -101,7 +99,7 @@ const Login = () => {
     }
   }
 
-  // Signup function (existing)
+  // Signup function
   async function handlesignup() {
     if (!name || !email || !phone || !address || !donorType || !password) {
       setError('Please fill in all fields');
@@ -137,29 +135,30 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/donorsignup.php", {
         method: "POST",
-        credentials: 'include', // Include for consistency
+        credentials: 'include',
         headers: { 
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           name,
           email,
+          password,
           phone,
           address,
           donorType,
-          password
+          role: "donor"
         }),
       });
   
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const result = await response.json();
-      
+  
       if (result.success) {
         alert('Signup successful! Please login.');
-        setLogin(true); // Switch to login view
+        setLogin(true);
       } else {
         setError(result.message);
       }
@@ -168,7 +167,7 @@ const Login = () => {
       setError('Network error. Please try again.');
     }
   }
-
+  
   // Clear error when switching between login/signup
   const handleToggle = (isLoginMode) => {
     setLogin(isLoginMode);
