@@ -1,10 +1,10 @@
 <?php
-// Set headers for port 5173
+// Set CORS headers
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Content-Type: application/json");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Credentials: true"); // ADD THIS LINE
+header("Access-Control-Allow-Credentials: true");
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -12,74 +12,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Debug: Log the request method
-error_log("Request method: " . $_SERVER['REQUEST_METHOD']);
-
 try {
-    // Include DB connection
     include 'db.php';
 
-    // Parse incoming JSON
     $input = file_get_contents("php://input");
-    error_log("Raw input: " . $input);
-    
     $data = json_decode($input, true);
-    error_log("Parsed data: " . print_r($data, true));
+    error_log("Signup data: " . print_r($data, true));
 
-    // Check if JSON parsing was successful
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        echo json_encode(["success" => false, "message" => "Invalid JSON format"]);
-        exit();
-    }
-
-    // Validate presence of required fields
+    // Validate input
     if (
-        !isset($data['name']) || !isset($data['email']) || !isset($data['phone']) ||
-        !isset($data['address']) || !isset($data['donorType']) || !isset($data['password'])
+        !isset($data['name'], $data['email'], $data['password'], $data['phone'], $data['address'], $data['donorType'], $data['role'])
     ) {
-        echo json_encode(["success" => false, "message" => "Missing required fields."]);
+        echo json_encode(["success" => false, "message" => "Missing required fields"]);
         exit();
     }
 
-    // Extract values
     $name = $data['name'];
     $email = $data['email'];
+    $password = $data['password'];
+    $role = $data['role']; // This should be "donor"
     $phone = $data['phone'];
     $address = $data['address'];
     $donor_type = $data['donorType'];
-    $password = $data['password'];
 
-    // Prepare SQL
-    $sql = "INSERT INTO DONOR (name, email, phone, address, donor_type, password) 
-            VALUES (?, ?, ?, ?, ?, ?)";
+    // Begin transaction
+    $conn->begin_transaction();
 
-    $stmt = $conn->prepare($sql);
+    // 1. Insert into USERS table
+    $userStmt = $conn->prepare("INSERT INTO USERS (name, email, password, role) VALUES (?, ?, ?, ?)");
+    if (!$userStmt) throw new Exception("User insert prepare failed: " . $conn->error);
+    $userStmt->bind_param("ssss", $name, $email, $password, $role);
 
-    // Check for prepare error
-    if (!$stmt) {
-        echo json_encode(["success" => false, "message" => "SQL prepare error: " . $conn->error]);
-        exit();
-    }
-
-    $stmt->bind_param("ssssss", $name, $email, $phone, $address, $donor_type, $password);
-
-    // Execute and respond
-    if ($stmt->execute()) {
-        echo json_encode(["success" => true, "message" => "Signup successful"]);
-    } else {
-        // If duplicate email, MySQL error code is 1062
+    if (!$userStmt->execute()) {
         if ($conn->errno == 1062) {
             echo json_encode(["success" => false, "message" => "Email already exists."]);
         } else {
-            echo json_encode(["success" => false, "message" => "Signup failed: " . $conn->error]);
+            throw new Exception("Failed to insert into USERS: " . $conn->error);
         }
+        $conn->rollback();
+        exit();
     }
 
+    $user_id = $conn->insert_id; // Get inserted user ID
+
+    // 2. Insert into DONOR table
+    $donorStmt = $conn->prepare("INSERT INTO DONOR (user_id, phone, address, donor_type) VALUES (?, ?, ?, ?)");
+    if (!$donorStmt) throw new Exception("Donor insert prepare failed: " . $conn->error);
+    $donorStmt->bind_param("isss", $user_id, $phone, $address, $donor_type);
+
+    if (!$donorStmt->execute()) {
+        throw new Exception("Failed to insert into DONOR: " . $conn->error);
+    }
+
+    // Commit transaction
+    $conn->commit();
+
+    echo json_encode(["success" => true, "message" => "Signup successful"]);
+
     // Cleanup
-    $stmt->close();
+    $userStmt->close();
+    $donorStmt->close();
     $conn->close();
 
 } catch (Exception $e) {
+    $conn->rollback(); // Rollback on error
+    error_log("Signup error: " . $e->getMessage());
     echo json_encode(["success" => false, "message" => "Server error: " . $e->getMessage()]);
 }
-?>
