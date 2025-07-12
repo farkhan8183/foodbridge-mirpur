@@ -8,8 +8,9 @@ import Contact from "./pages/Contact";
 import Login from "./pages/donor/DonorLogin";
 import DonorPanel from "./pages/donor/donorpanel"; // Add this import
 import VolunteerPanel from "./pages/volunteer/volunteerpanel"; 
+import RecipientPanel from "./pages/Recipient/recipientpanel"; 
 import Createdonation from "./pages/donor/Createdonation"; // Add this import
-import Reclogin from "./pages/Recepient/RecipientLogin";
+import Reclogin from "./pages/Recipient/RecipientLogin";
 import Vollogin from "./pages/volunteer/volunteer";
 
 function MainLayout() {   // this will always show navbar at top 
@@ -38,6 +39,7 @@ function App() {
         {/* These pages won't show Navbar (login pages and dashboards) */}
         <Route path="/donorlogin" element={<Login />} />
         <Route path="/donorpanel" element={<DonorPanel />} />
+        <Route path="/recipientpanel" element={<RecipientPanel />} />
         <Route path="/volunteerpanel" element={<VolunteerPanel />} />
         <Route path="/Createdonation" element={<Createdonation />} />
         <Route path="/reclogin" element={<Reclogin />} />
