@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';  
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-
+import Navbar1 from '../components/Navbar';
 const About = () => {
   useEffect(() => {
     AOS.init({ duration: 1000 });
   }, []);
   return (
+    <div>
+    <Navbar1/>
     <div className="min-h-screen bg-gradient-to-br from-white via-emerald-100 to-yellow-100 px-6 py-12 lg:px-24">
-
+   
      
    {/* ABOUT SECTION */}
 <div
@@ -114,6 +116,7 @@ const About = () => {
 
       
 
+    </div>
     </div>
   );
 };

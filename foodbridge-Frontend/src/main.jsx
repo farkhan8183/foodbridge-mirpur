@@ -1,10 +1,23 @@
+import { StrictMode } from 'react'
 import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
+import { createRoot } from 'react-dom/client'
 import './index.css'
+import App from './App.jsx'
+import { BrowserRouter } from 'react-router-dom'
+import AuthContext from './context/AuthContext.jsx'
+import UserContext from './context/userContext.jsx'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+createRoot(document.getElementById('root')).render(
+  
+  <BrowserRouter> {/* wrap your app in browser router */}
+
+  <StrictMode>
+     <AuthContext>
+    <UserContext>
     <App />
-  </React.StrictMode>
+     </UserContext>
+    </AuthContext>
+  </StrictMode>
+  
+  </BrowserRouter>
 )

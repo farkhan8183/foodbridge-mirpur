@@ -1,373 +1,101 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react'
+import logo from '../../assets/logo.png'
+import { useNavigate } from 'react-router-dom'
+//import google from '../assets/google.png'
+import { IoEyeOutline } from "react-icons/io5";
+import { IoEye } from "react-icons/io5";
+import { useState } from 'react';
+import AuthContext from '../../context/AuthContext';
+import { authDataContext } from '../../context/AuthContext';
+import axios from 'axios';
+import { useContext } from 'react';
+//import { signInWithPopup } from 'firebase/auth';
+//import { auth, provider } from '../../utils/Firebase';
+import { userDataContext } from '../../context/userContext';
+import Loading from '../../components/Loading';
+import { toast } from 'react-toastify';
+import Donorpanel from './donorpanel';
 
-const Login = () => {
-  const navigate = useNavigate();
-  const [login, setLogin] = useState(true);
-  
-  // Signup states
-  const [donorType, setDonorType] = useState('');
-  const [name, setname] = useState('');
-  const [email, setemail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // Login states
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  
-  // Loading and error states
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [checkingSession, setCheckingSession] = useState(true);
+function DonorLogin() {
+    let [show,setShow] = useState(false)
+        let [email,setEmail] = useState("")
+        let [password,setPassword] = useState("")
+        let {serverUrl} = useContext(authDataContext)
+      let {getCurrentUser} = useContext(userDataContext)
+        let [loading,setLoading] = useState(false)
 
-  // Check for existing session on component mount
-  useEffect(() => {
-    checkSession();
-  }, []);
+    let navigate = useNavigate()
 
-  // Function to check if user is already logged in
-  async function checkSession() {
-    try {
-      const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/checksession.php", {
-        method: "GET",
-        credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json"
+    const handleLogin = async (e) => {
+        setLoading(true)
+        e.preventDefault()
+        try {
+            let result = await axios.post(serverUrl + '/api/auth/login',{
+                email,password
+            },{withCredentials:true})
+            console.log(result.data)
+            setLoading(false)
+            getCurrentUser()
+            navigate("/donorpanel")
+            toast.success("User Login Successful")
+            
+        } catch (error) {
+            console.log(error)
+            toast.error("User Login Failed")
         }
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.logged_in && result.user.role === 'donor') {
-          console.log('Donor already logged in:', result.user);
-          navigate('/donorpanel');
-          return;
-        }
-      }
-    } catch (error) {
-      console.log('Session check failed:', error);
-    } finally {
-      setCheckingSession(false);
     }
-  }
-
-  // Login function
-  async function handleLogin() {
-    if (!loginEmail || !loginPassword) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/login.php", {
-        method: "POST",
-        credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: loginEmail,
-          password: loginPassword,
-          role: "donor"
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      
-      if (result.success) {
-        console.log('Login successful:', result.user);
-        alert('Login successful!');
-        navigate('/donorpanel');
-      } else {
-        setError(result.message);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // Signup function
-  async function handlesignup() {
-    if (!name || !email || !phone || !address || !donorType || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
+    /*
+     const googlelogin = async () => {
+            try {
+                const response = await signInWithPopup(auth , provider)
+                let user = response.user
+                let name = user.displayName;
+                let email = user.email
     
-    try {
-      await submit();
-      // Clear form on successful signup
-      setname('');
-      setemail('');
-      setPhone('');
-      setAddress('');
-      setDonorType('');
-      setPassword('');
-      setConfirmPassword('');
-    } catch (error) {
-      console.error('Signup failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function submit() {
-    try {
-      const response = await fetch("http://localhost/FSWD/foodbridge-mirpur/foodbridge-Backend/donorsignup.php", {
-        method: "POST",
-        credentials: 'include',
-        headers: { 
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          phone,
-          address,
-          donorType,
-          role: "donor"
-        }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const result = await response.json();
-  
-      if (result.success) {
-        alert('Signup successful! Please login.');
-        setLogin(true);
-      } else {
-        setError(result.message);
-      }
-    } catch (error) {
-      console.error('Network error:', error);
-      setError('Network error. Please try again.');
-    }
-  }
-  
-  // Clear error when switching between login/signup
-  const handleToggle = (isLoginMode) => {
-    setLogin(isLoginMode);
-    setError('');
-    // Clear login form when switching to signup
-    if (!isLoginMode) {
-      setLoginEmail('');
-      setLoginPassword('');
-    }
-  };
-
-  // Show loading while checking session
-  if (checkingSession) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-white to-pink-100">
-        <div className="text-lg font-semibold">Checking session...</div>
-      </div>
-    );
-  }
-  
+                const result = await axios.post(serverUrl + "/api/auth/googlelogin" ,{name , email} , {withCredentials:true})
+                console.log(result.data)
+                getCurrentUser()
+            navigate("/")
+    
+            } catch (error) {
+                console.log(error)
+            }
+            
+        }
+            */
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-white to-pink-100 px-4">
-      <div className="bg-white shadow-2xl rounded-2xl p-6 sm:p-8 w-full max-w-md border border-gray-200">
-        {/* Toggle Buttons */}
-        <div className="flex justify-between mb-6">
-          <button
-            className={`w-1/2 mr-2 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 cursor-pointer ${
-              login
-                ? 'bg-blue-600 text-white shadow-md scale-105'
-                : 'bg-gray-100 text-blue-700'
-            }`}
-            onClick={() => handleToggle(true)}
-          >
-            Login
-          </button>
-          <button
-            className={`w-1/2 py-2 rounded-lg text-sm sm:text-base font-semibold transition-all duration-200 cursor-pointer ${
-              !login
-                ? 'bg-blue-600 text-white shadow-md scale-105'
-                : 'bg-gray-100 text-blue-700'
-            }`}
-            onClick={() => handleToggle(false)}
-          >
-            Signup
-          </button>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
-            {error}
-          </div>
-        )}
-
-        {/* Login */}
-        {login ? (
-          <div>
-            <h1 className="text-xl font-bold text-center text-blue-700 mb-2">Welcome Back!</h1>
-            <p className="text-center text-sm text-gray-500 mb-4">Login to FoodBridge 🚀</p>
-
-            <div className="flex flex-col gap-4">
-              <input
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-400"
-                type="email"
-                placeholder="Email"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                required
-              />
-              <input
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-400"
-                type="password"
-                placeholder="Password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="text-right mt-2 text-sm text-blue-600 hover:underline cursor-pointer">
-              Forgot Password?
-            </div>
-
-            <button
-              onClick={handleLogin}
-              disabled={isLoading}
-              className={`mt-5 w-full py-2 rounded-lg font-semibold shadow-md cursor-pointer text-white ${
-                isLoading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-blue-700 hover:bg-blue-900'
-              }`}
-            >
-              {isLoading ? 'Logging in...' : 'Login'}
-            </button>
-
-            <div className="mt-4 text-sm text-center">
-              Not a member?{' '}
-              <span
-                onClick={() => handleToggle(false)}
-                className="text-blue-700 font-medium hover:underline cursor-pointer"
-              >
-                Sign up Now
-              </span>
-            </div>
-          </div>
-        ) : (
-          // Signup
-          <div>
-            <h1 className="text-xl font-bold text-center text-pink-600 mb-2">Join FoodBridge!</h1>
-            <p className="text-center text-sm text-gray-500 mb-4">Sign up to donate and support 💚</p>
-
-            <div className="flex flex-col gap-4">
-              <input 
-                value={name} 
-                onChange={(e) => setname(e.target.value)}
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                type="text"
-                placeholder="Your / Organization Name"
-                required
-              />
-              <input 
-                value={email} 
-                onChange={(e) => setemail(e.target.value)}
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                type="email"
-                placeholder="Email"
-                required
-              />
-              <input 
-                value={phone} 
-                onChange={(e) => setPhone(e.target.value)}
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                type="tel"
-                placeholder="Phone Number"
-                required
-              />
-              <textarea 
-                value={address} 
-                onChange={(e) => setAddress(e.target.value)}
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                placeholder="Address"
-                required
-              ></textarea>
-
-              <select
-                value={donorType}
-                onChange={(e) => setDonorType(e.target.value)}
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                required
-              >
-                <option value="">Select Donor Type</option>
-                <option value="person">Individual</option>
-                <option value="restaurant">Restaurant</option>
-                <option value="organization">Organization</option>
-              </select>
-
-              <input 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)}
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                type="password"
-                placeholder="Password"
-                required
-              />
-              <input 
-                value={confirmPassword} 
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-pink-400"
-                type="password"
-                placeholder="Confirm Password"
-                required
-              />
-            </div>
-
-            <button
-              className={`mt-5 w-full py-2 rounded-lg font-semibold shadow-md cursor-pointer text-white ${
-                isLoading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-pink-600 hover:bg-pink-800'
-              }`}
-              onClick={handlesignup}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing Up...' : 'Sign Up'}
-            </button>
-
-            <div className="mt-4 text-sm text-center">
-              Already a member?{' '}
-              <span
-                onClick={() => handleToggle(true)}
-                className="text-pink-700 font-medium hover:underline cursor-pointer"
-              >
-                Login
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
+    <div className='w-[100vw] h-[100vh] bg-gradient-to-l from-[#141414] to-[#0c2025] text-[white] flex flex-col items-center justify-start'>
+    <div className='w-[100%] h-[80px] flex items-center justify-start px-[30px] gap-[10px] cursor-pointer' onClick={()=>navigate("/")}>
+    <img className='w-[40px]' src={logo} alt="" />
+    <h1 className='text-[22px] font-sans '>FoodBridge Mirpur</h1>
     </div>
-  );
-};
 
-export default Login;
+    <div className='w-[100%] h-[100px] flex items-center justify-center flex-col gap-[10px]'>
+        <span className='text-[25px] font-semibold'>Login Page</span>
+   
+
+    </div>
+    <div className='max-w-[600px] w-[90%] h-[500px] bg-[#00000025] border-[1px] border-[#96969635] backdrop:blur-2xl rounded-lg shadow-lg flex items-center justify-center '>
+        <form action="" onSubmit={handleLogin} className='w-[90%] h-[90%] flex flex-col items-center justify-start gap-[20px]'>
+{/*  <div className='w-[90%] h-[50px] bg-[#42656cae] rounded-lg flex items-center justify-center gap-[10px] py-[20px] cursor-pointer'onClick={googleLogin()} >
+                <img src={google} alt="" className='w-[20px]'/> Login account with Google
+            </div>*/}
+            <div className='w-[100%] h-[20px] flex items-center justify-center gap-[10px]'>
+             <div className='w-[40%] h-[1px] bg-[#96969635]'></div> OR <div className='w-[40%] h-[1px] bg-[#96969635]'></div>
+            </div>
+            <div className='w-[90%] h-[400px] flex flex-col items-center justify-center gap-[15px]  relative'>
+              
+                 <input type="text" className='w-[100%] h-[50px] border-[2px] border-[#96969635] backdrop:blur-sm rounded-lg shadow-lg bg-transparent placeholder-[#ffffffc7] px-[20px] font-semibold' placeholder='Email' required  onChange={(e)=>setEmail(e.target.value)} value={email}/>
+                  <input type={show?"text":"password"} className='w-[100%] h-[50px] border-[2px] border-[#96969635] backdrop:blur-sm rounded-lg shadow-lg bg-transparent placeholder-[#ffffffc7] px-[20px] font-semibold' placeholder='Password' required onChange={(e)=>setPassword(e.target.value)} value={password}/>
+                  {!show && <IoEyeOutline className='w-[20px] h-[20px] cursor-pointer absolute right-[5%] bottom-[57%]' onClick={()=>setShow(prev => !prev)}/>}
+                  {show && <IoEye className='w-[20px] h-[20px] cursor-pointer absolute right-[5%] bottom-[57%]' onClick={()=>setShow(prev => !prev)}/>}
+                  <button className='w-[100%] h-[50px] bg-[#6060f5] rounded-lg flex items-center justify-center mt-[20px] text-[17px] font-semibold'>{loading? <Loading/> : "Login"}</button>
+                  <p className='flex  gap-[10px]'>You haven't any account? <span className='text-[#5555f6cf] text-[17px] font-semibold cursor-pointer' onClick={()=>navigate("/donorregister")}>Create New Account</span></p>
+            </div>
+        </form>
+    </div>
+    </div>
+  )
+}
+
+export default DonorLogin

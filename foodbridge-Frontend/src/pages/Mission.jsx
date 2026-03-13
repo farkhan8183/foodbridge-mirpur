@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import Navbar1 from '../components/Navbar';
 
 const Mission = () => {
   useEffect(() => {
@@ -8,6 +9,8 @@ const Mission = () => {
   }, []);
 
   return (
+    <div>
+     <Navbar1/>
     <div className="min-h-screen bg-gradient-to-br from-white via-yellow-50 to-emerald-100 px-6 py-12 lg:px-32">
       
       {/* Header */}
@@ -95,6 +98,7 @@ const Mission = () => {
 </div>
 
 
+    </div>
     </div>
   );
 };

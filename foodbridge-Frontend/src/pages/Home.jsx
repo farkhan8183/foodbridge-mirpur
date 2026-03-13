@@ -6,6 +6,8 @@ import { FaUserTie } from "react-icons/fa";
 import { FaHandsHelping } from "react-icons/fa";
 import { useEffect} from 'react';  
 import { useNavigate } from 'react-router-dom';
+import DonorRegistration from './donor/DonorRegistration';
+import Navbar1 from '../components/Navbar';
 
 import AOS from 'aos';  //A-1(install aos)
 
@@ -18,6 +20,7 @@ const Home = () => {  //A-2
 
   return (
     <div >
+      <Navbar1/>
       <div className=' bg-gradient-to-br from-white via-emerald-100 to-yellow-100 flex flex-col items-center lg:flex-row  lg:mt-[10px] pt-10 lg:gap-15 lg:pl-8 md:flex-col  md:mt-[2px]  md:py-10  md:gap-5   '>
  <div className="flex flex-col items-center justify-center  text-center px-4">
       
@@ -40,21 +43,21 @@ const Home = () => {  //A-2
       {/* Join Buttons */}
    <section className="grid grid-cols-1  gap-6 mt-5 px-4">
 <div  className="bg-orange-800 hover:bg-orange-900 text-white font-bold shadow-md rounded-xl px-6 py-5 text-xl  tracking-wide transition-all hover:scale-105 hover:shadow-xl text-center" >
-    <button className='flex gap-1.5 items-center justify-between cursor-pointer ' onClick={() => navigate("/donorlogin")}>
+    <button className='flex gap-1.5 items-center justify-between cursor-pointer ' onClick={() => navigate("/donorregister")}>
     Join as a Donor
     <BiSolidDonateHeart className="text-3xl text-yellow-100"  />
     </button>
  </div>
 
 <button   
-    className="bg-emerald-900 hover:bg-emerald-950 text-white shadow-md rounded-xl px-6 py-5 text-xl font-semibold tracking-wide transition-all hover:scale-105 hover:shadow-xl text-center cursor-pointer"onClick={()=>{navigate("/vollogin")}}>
+    className="bg-emerald-900 hover:bg-emerald-950 text-white shadow-md rounded-xl px-6 py-5 text-xl font-semibold tracking-wide transition-all hover:scale-105 hover:shadow-xl text-center cursor-pointer"onClick={()=>{navigate("/volunteerregister")}}>
    <div className='flex gap-1.5 items-center justify-between'>
     Join as a Volunteer
     <FaUserTie  className="text-3xl text-yellow-100" />
     </div>
   </button>
   
-   <button  className='bg-sky-900 hover:bg-sky-950 text-white shadow-md rounded-xl px-6 py-5 text-xl font-semibold tracking-wide transition-all hover:scale-105 hover:shadow-xl text-center cursor-pointer'onClick={() => navigate("/reclogin")}>
+   <button  className='bg-sky-900 hover:bg-sky-950 text-white shadow-md rounded-xl px-6 py-5 text-xl font-semibold tracking-wide transition-all hover:scale-105 hover:shadow-xl text-center cursor-pointer'onClick={() => navigate("/recipientregister")}>
     <div className='flex gap-1.5 items-center justify-between'>
     Join as a Recipient
     <FaHandsHelping  className="text-3xl text-yellow-100" />

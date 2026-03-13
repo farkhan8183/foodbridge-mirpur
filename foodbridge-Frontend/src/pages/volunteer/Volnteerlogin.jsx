@@ -1,10 +1,11 @@
 import React from 'react'
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.png'
 import { useNavigate } from 'react-router-dom'
 //import google from '../assets/google.png'
 import { IoEyeOutline } from "react-icons/io5";
 import { IoEye } from "react-icons/io5";
 import { useState } from 'react';
+import AuthContext from '../../context/AuthContext';
 import { authDataContext } from '../../context/AuthContext';
 import axios from 'axios';
 import { useContext } from 'react';
@@ -13,10 +14,10 @@ import { useContext } from 'react';
 //import { userDataContext } from '../context/UserContext';
 import Loading from '../../components/Loading';
 import { toast } from 'react-toastify';
-import Recipietnregistration from './RecipientRegistration';
-import RecipientPanel from './recipientpanel';
+import Volunteerpanel from './volunteerpanel';
+import VolunteerRegistration from './VolunteerRegistration';
 
-function Login() {
+function VolunteerLogin() {
     let [show,setShow] = useState(false)
         let [email,setEmail] = useState("")
         let [password,setPassword] = useState("")
@@ -30,13 +31,13 @@ function Login() {
         setLoading(true)
         e.preventDefault()
         try {
-            let result = await axios.post(serverUrl + '/api/auth/recipient/login',{
+            let result = await axios.post(serverUrl + '/api/auth/volunteer/login',{
                 email,password
             },{withCredentials:true})
             console.log(result.data)
             setLoading(false)
            // getCurrentUser()
-            navigate("/recipientpanel")
+            navigate("/volunteerpanel")
             toast.success("User Login Successful")
             
         } catch (error) {
@@ -72,7 +73,7 @@ function Login() {
 
     <div className='w-[100%] h-[100px] flex items-center justify-center flex-col gap-[10px]'>
         <span className='text-[25px] font-semibold'>Login Page</span>
-        
+     
 
     </div>
     <div className='max-w-[600px] w-[90%] h-[500px] bg-[#00000025] border-[1px] border-[#96969635] backdrop:blur-2xl rounded-lg shadow-lg flex items-center justify-center '>
@@ -90,7 +91,7 @@ function Login() {
                   {!show && <IoEyeOutline className='w-[20px] h-[20px] cursor-pointer absolute right-[5%] bottom-[57%]' onClick={()=>setShow(prev => !prev)}/>}
                   {show && <IoEye className='w-[20px] h-[20px] cursor-pointer absolute right-[5%] bottom-[57%]' onClick={()=>setShow(prev => !prev)}/>}
                   <button className='w-[100%] h-[50px] bg-[#6060f5] rounded-lg flex items-center justify-center mt-[20px] text-[17px] font-semibold'>{loading? <Loading/> : "Login"}</button>
-                  <p className='flex  gap-[10px]'>You haven't any account? <span className='text-[#5555f6cf] text-[17px] font-semibold cursor-pointer' onClick={()=>navigate("/recipientregister")}>Create New Account</span></p>
+                  <p className='flex  gap-[10px]'>You haven't any account? <span className='text-[#5555f6cf] text-[17px] font-semibold cursor-pointer' onClick={()=>navigate("/volunteerregister")}>Create New Account</span></p>
             </div>
         </form>
     </div>
@@ -98,4 +99,4 @@ function Login() {
   )
 }
 
-export default Login
+export default VolunteerLogin
